@@ -10,7 +10,7 @@ public class Network<R: Router>: Requestable {
                          compilation: @escaping (Result<T, Error>) -> Void) where T: Codable {
         
         URLSession.shared.dataTask(with: url) { data, response, error in
-            if let res = response as? HTTPURLResponse, 200...210 ~= res.statusCode  {
+            if let res = response as? HTTPURLResponse, res.statusCode != 200  {
                 return compilation(.failure(NetworkingError.serverResponse(res.statusCode)))
             }
             guard let data = data else {
@@ -33,7 +33,7 @@ public class Network<R: Router>: Requestable {
             let request = try makeRequest(route: router)
             
             URLSession.shared.dataTask(with: request) { data, response, error in
-                if let res = response as? HTTPURLResponse, 200...210 ~= res.statusCode  {
+                if let res = response as? HTTPURLResponse, res.statusCode != 200 {
                     return compilation(.failure(NetworkingError.serverResponse(res.statusCode)))
                 }
                 
@@ -60,7 +60,7 @@ public class Network<R: Router>: Requestable {
             .shared
             .dataTaskPublisher(for: url)
             .tryMap { (data: Data, res: URLResponse) in
-                if let response = res as? HTTPURLResponse, 200...210 ~= response.statusCode  {
+                if let response = res as? HTTPURLResponse, response.statusCode != 200 {
                     throw NetworkingError.serverResponse(response.statusCode)
                 }
                 return data
@@ -76,7 +76,7 @@ public class Network<R: Router>: Requestable {
             let request = try makeRequest(route: router)
             return URLSession.shared.dataTaskPublisher(for: request)
                 .tryMap { (data: Data, res: URLResponse) in
-                    if let response = res as? HTTPURLResponse, 200...210 ~= response.statusCode {
+                    if let response = res as? HTTPURLResponse, response.statusCode != 200 {
                         throw NetworkingError.serverResponse(response.statusCode)
                     }
                     return data
@@ -92,7 +92,7 @@ public class Network<R: Router>: Requestable {
     public func fetch<T: Codable>(url: URL, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
         do {
             let (data, res) = try await URLSession.shared.data(from: url, delegate: nil)
-            if let response = res as? HTTPURLResponse, 200...210 ~= response.statusCode {
+            if let response = res as? HTTPURLResponse, response.statusCode != 200 {
                 throw NetworkingError.serverResponse(response.statusCode)
             }
             
@@ -110,7 +110,7 @@ public class Network<R: Router>: Requestable {
             let request = try makeRequest(route: router)
             let (data, res) = try await URLSession.shared.data(for: request, delegate: nil)
             
-            if let response = res as? HTTPURLResponse, 200...210 ~= response.statusCode {
+            if let response = res as? HTTPURLResponse, response.statusCode != 200 {
                 throw NetworkingError.serverResponse(response.statusCode)
             }
             
