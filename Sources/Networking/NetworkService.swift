@@ -1,13 +1,11 @@
 import Foundation
 import Combine
 
-public class Network<R: Router>: Requestable {
+public class NetworkService<R: Router>: Requestable {
     
     public init() {}
     
-    public func fetch<T>(url: URL,
-                         decoder: JSONDecoder = JSONDecoder(),
-                         compilation: @escaping (Result<T, Error>) -> Void) where T: Codable {
+    public func fetch<T: Codable>(url: URL, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<T, Error>) -> Void) {
         
         URLSession.shared.dataTask(with: url) { data, response, error in
             if let res = response as? HTTPURLResponse, res.statusCode != 200  {
@@ -26,9 +24,7 @@ public class Network<R: Router>: Requestable {
         }.resume()
     }
     
-    public func fetch<T>(router: R,
-                         decoder: JSONDecoder = JSONDecoder(),
-                         compilation: @escaping (Result<T, Error>) -> Void) where T : Decodable, T : Encodable, R : Router {
+    public func fetch<T: Codable, R: Router>(router: R, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<T, Error>) -> Void) {
         do {
             let request = try makeRequest(route: router)
             
@@ -70,7 +66,7 @@ public class Network<R: Router>: Requestable {
     }
     
     
-    public func fetch<T>(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<T, Error> where T : Codable, R : Router {
+    public func fetch<T: Codable, R: Router>(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<T, Error> {
         
         do {
             let request = try makeRequest(route: router)
@@ -104,7 +100,7 @@ public class Network<R: Router>: Requestable {
     }
     
     
-    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T where R : Router {
+    public func fetch<T: Codable, R: Router>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
         
         do {
             let request = try makeRequest(route: router)
