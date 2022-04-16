@@ -100,7 +100,7 @@ public class NetworkService<R: Router>: Requestable {
     }
     
     
-    public func fetch<T: Codable, R: Router>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T {
+    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T where R: Router {
         
         do {
             let request = try makeRequest(route: router)
