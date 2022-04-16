@@ -24,7 +24,7 @@ public class NetworkService<R: Router>: Requestable {
         }.resume()
     }
     
-    public func fetch<T: Codable, R: Router>(router: R, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<T, Error>) -> Void) {
+    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<T, Error>) -> Void) where R: Router {
         do {
             let request = try makeRequest(route: router)
             
@@ -66,7 +66,7 @@ public class NetworkService<R: Router>: Requestable {
     }
     
     
-    public func fetch<T: Codable, R: Router>(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<T, Error> {
+    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<T, Error> where R: Router {
         
         do {
             let request = try makeRequest(route: router)
