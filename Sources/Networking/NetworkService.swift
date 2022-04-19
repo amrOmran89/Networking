@@ -40,7 +40,7 @@ public class NetworkService<R: Router>: Requestable {
             let request = try makeRequest(route: router)
             return URLSession.shared.dataTaskPublisher(for: request)
                 .tryMap { (data: Data, res: URLResponse) in
-                    if let response = res as? HTTPURLResponse, response.statusCode != 200 {
+                    if let response = res as? HTTPURLResponse, !(200...210).contains(response.statusCode) {
                         throw NetworkingError.serverResponse(response.statusCode)
                     }
                     return data
@@ -59,7 +59,7 @@ public class NetworkService<R: Router>: Requestable {
             let request = try makeRequest(route: router)
             let (data, res) = try await URLSession.shared.data(for: request, delegate: nil)
             
-            if let response = res as? HTTPURLResponse, response.statusCode != 200 {
+            if let response = res as? HTTPURLResponse, !(200...210).contains(response.statusCode) {
                 throw NetworkingError.serverResponse(response.statusCode)
             }
             
