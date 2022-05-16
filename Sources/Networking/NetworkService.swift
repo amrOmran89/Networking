@@ -6,7 +6,7 @@ public class NetworkService<R: Router>: Requestable {
     public init() {}
 
     
-    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<T, Error>) -> Void) where R: Router {
+    public func fetch(router: R, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<Codable, Error>) -> Void) where R: Router {
         do {
             let request = try makeRequest(route: router)
             
@@ -20,7 +20,7 @@ public class NetworkService<R: Router>: Requestable {
                 }
                 
                 do {
-                    let json = try decoder.decode(T.self, from: data)
+                    let json = try decoder.decode(router.type.self, from: data)
                     compilation(.success(json))
                 } catch {
                     return compilation(.failure(error))
@@ -34,7 +34,7 @@ public class NetworkService<R: Router>: Requestable {
     }
     
     
-    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<T, Error> where R: Router {
+    public func fetch(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<R.T, Error> where R: Router {
         
         do {
             let request = try makeRequest(route: router)
@@ -45,7 +45,7 @@ public class NetworkService<R: Router>: Requestable {
                     }
                     return data
                 }
-                .decode(type: T.self, decoder: decoder)
+                .decode(type: router.type.self, decoder: decoder)
                 .eraseToAnyPublisher()
         } catch {
             return Fail(error: error).eraseToAnyPublisher()
@@ -53,7 +53,7 @@ public class NetworkService<R: Router>: Requestable {
     }
     
     
-    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T where R: Router {
+    public func fetch(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> Codable where R: Router {
         
         do {
             let request = try makeRequest(route: router)
@@ -63,7 +63,7 @@ public class NetworkService<R: Router>: Requestable {
                 throw NetworkingError.serverResponse(response.statusCode)
             }
             
-            let json = try decoder.decode(T.self, from: data)
+            let json = try decoder.decode(router.type.self, from: data)
             return json
         } catch {
             throw error
