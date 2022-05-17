@@ -8,14 +8,11 @@
 import Foundation
 
 public protocol Router {
-    
-    associatedtype T: Codable
-    
+
     var baseURL: String { get }
     var path: String { get }
     var queries: [URLQueryItem]? { get }
     var parameter: Codable? { get }
     var headers: [String : String]? { get }
     var method: HttpMethod { get }
-    var type: T.Type { get }
 }
