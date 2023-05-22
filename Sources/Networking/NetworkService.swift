@@ -4,39 +4,6 @@ import Combine
 public class NetworkService<R: Router>: Requestable {
     
     public init() {}
-
-    
-    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder(), compilation: @escaping (Result<T?, Error>) -> Void) where R: Router {
-        do {
-            let request = try makeRequest(route: router)
-            
-            URLSession.shared.dataTask(with: request) { data, response, error in
-                if let res = response as? HTTPURLResponse, res.statusCode != 200 {
-                    compilation(.failure(NetworkingError.serverResponse(res.statusCode)))
-                }
-                
-                guard let data = data else {
-                    compilation(.failure(NetworkingError.dataNotFound))
-                    return
-                }
-                
-                if router.method == .delete || router.method == .post {
-                    compilation(.success(nil))
-                }
-                
-                do {
-                    let json = try decoder.decode(T.self, from: data)
-                    compilation(.success(json))
-                } catch {
-                    compilation(.failure(error))
-                }
-                
-            }.resume()
-            
-        } catch {
-            compilation(.failure(error))
-        }
-    }
     
     
     public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) -> AnyPublisher<T?, Error> where R: Router {
@@ -70,10 +37,10 @@ public class NetworkService<R: Router>: Requestable {
                 throw NetworkingError.serverResponse(response.statusCode)
             }
             
-            if router.method == .delete || router.method == .post {
+            if router.method == .delete || router.method == .post || router.method == .put {
                 return nil
             }
-
+  
             let json = try decoder.decode(T.self, from: data)
             return json
         } catch {
