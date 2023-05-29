@@ -27,7 +27,7 @@ public class NetworkService<R: Router>: Requestable {
     }
     
     
-    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T? where R: Router {
+    public func fetch<T: Codable>(router: R, decoder: JSONDecoder = JSONDecoder()) async throws -> T where R: Router {
         
         do {
             let request = try makeRequest(route: router)
@@ -35,10 +35,6 @@ public class NetworkService<R: Router>: Requestable {
             
             if let response = res as? HTTPURLResponse, !(200...210).contains(response.statusCode) {
                 throw NetworkingError.serverResponse(response.statusCode)
-            }
-            
-            if router.method == .delete || router.method == .post || router.method == .put {
-                return nil
             }
   
             let json = try decoder.decode(T.self, from: data)
