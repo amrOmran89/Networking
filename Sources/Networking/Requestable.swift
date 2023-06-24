@@ -33,9 +33,7 @@ public extension Requestable {
         urlRequest.httpMethod = route.method.rawValue
         if let body = route.parameter {
             do {
-                let jsonEncoder = JSONEncoder()
-                let encodable = AnyEncodable(body)
-                let data = try jsonEncoder.encode(encodable)
+                let data = try encoding(encoded: body)
                 urlRequest.httpBody = data
                 
             } catch {
@@ -45,5 +43,8 @@ public extension Requestable {
         
         return urlRequest
     }
-
+    
+    func encoding(encoded: any Encodable) throws -> Data {
+        try JSONEncoder().encode(encoded)
+    }
 }
